@@ -32,7 +32,9 @@ router.get("/", async (req, res) => {
             return res.status(400).json({ error: "userID query parameter is required." });
         }
 
-        const trips = await Trip.find({ userID: userID }).sort({ createdAt: -1 });
+        const trips = await Trip.find({ userID: userID })
+            .sort({ createdAt: -1 })
+            .lean();
         console.log(`Fetched ${trips.length} trips for userID: ${userID}`);
         res.json(trips);
     } catch (err) {

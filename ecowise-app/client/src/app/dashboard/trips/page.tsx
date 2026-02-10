@@ -49,6 +49,13 @@ interface Trip {
   totalCost: number;
   budgetRemaining?: number;
 
+  emissions?: {
+    transportKg: number;
+    stayKg: number;
+    activitiesKg: number;
+    totalKg: number;
+  };
+
   warnings: string[];
   userID: string;
   createdAt?: string;
@@ -262,6 +269,77 @@ const carbonBreakdown = [
   { label: "Activities", value: "1.2 kg CO2e", share: "12%" },
 ];
 
+const formatKg = (value?: number) => {
+  if (value === undefined || value === null) return null;
+  return `${value.toFixed(1)} kg CO2e`;
+};
+
+const knownCities = [
+  "bengaluru",
+  "mysuru",
+  "delhi",
+  "jaipur",
+  "mumbai",
+  "goa",
+  "ooty",
+  "chennai",
+  "vijayawada",
+  "agra",
+];
+
+const extractBudget = (prompt: string) => {
+  const currencyMatch = prompt.match(/₹\s*(\d+(?:\.\d+)?)(k)?/i);
+  if (currencyMatch) {
+    const value = Number(currencyMatch[1]);
+    return currencyMatch[2] ? value * 1000 : value;
+  }
+  const underMatch = prompt.match(/under\s*(\d+(?:\.\d+)?)(k)?/i);
+  if (underMatch) {
+    const value = Number(underMatch[1]);
+    return underMatch[2] ? value * 1000 : value;
+  }
+  return null;
+};
+
+const extractDuration = (prompt: string) => {
+  const match = prompt.match(/(\d+)\s*[-\s]?\s*(day|days|night|nights)/i);
+  return match ? Number(match[1]) : null;
+};
+
+const extractOriginDestination = (prompt: string) => {
+  const fromMatch = prompt.match(/from\s+([a-z\s]+)/i);
+  const toMatch = prompt.match(/to\s+([a-z\s]+)/i);
+  const fromCity = fromMatch
+    ? knownCities.find((city) => fromMatch[1].includes(city))
+    : null;
+  const toCity = toMatch
+    ? knownCities.find((city) => toMatch[1].includes(city))
+    : null;
+
+  return {
+    origin: fromCity,
+    destination: toCity,
+  };
+};
+
+const extractTravelDate = (prompt: string) => {
+  const match = prompt.match(/(\d{1,2})(st|nd|rd|th)?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december)/i);
+  if (!match) return null;
+  const day = match[1];
+  const month = match[3];
+  return `${day} ${month}`;
+};
+
+const buildTripDates = (travelDate: string | null, durationDays: number | null) => {
+  if (!travelDate || !durationDays) return null;
+  const year = new Date().getFullYear();
+  const start = new Date(`${travelDate} ${year}`);
+  if (Number.isNaN(start.getTime())) return null;
+  const end = new Date(start);
+  end.setDate(start.getDate() + Math.max(0, durationDays - 1));
+  return { startDate: start.toISOString(), deadline: end.toISOString() };
+};
+
 export default function TripsPage() {
   const router = useRouter();
   const [displayTrips, setDisplayTrips] = useState<Trip[]>([]);
@@ -270,11 +348,22 @@ export default function TripsPage() {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const hasProcessedGeneratedTrips = useRef(false);
   const [demoMode, setDemoMode] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [lastGeneratedAt, setLastGeneratedAt] = useState<string | null>(null);
   const [promptDebug, setPromptDebug] = useState<PromptDebug | null>(null);
   const [promptError, setPromptError] = useState<string | null>(null);
+
+  const emissionsSummary = displayTrips[0]?.emissions || null;
+  const emissionTotalLabel = formatKg(emissionsSummary?.totalKg);
+  const emissionBreakdown = emissionsSummary
+    ? [
+        { label: "Transport", value: formatKg(emissionsSummary.transportKg) || "", share: "" },
+        { label: "Stay", value: formatKg(emissionsSummary.stayKg) || "", share: "" },
+        { label: "Activities", value: formatKg(emissionsSummary.activitiesKg) || "", share: "" },
+      ]
+    : carbonBreakdown;
 
   useEffect(() => {
     const loadCurrentSessionTrips = async () => {
@@ -290,6 +379,7 @@ export default function TripsPage() {
         if (meRes.ok) {
           const meJson = await meRes.json();
           uid = meJson?.user?.id ?? null;
+          setUserId(uid);
         }
 
         // 2. Priority: Show fresh trips from LocalStorage
@@ -380,19 +470,98 @@ export default function TripsPage() {
     setIsGenerating(true);
     try {
       const apiBase = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
-      const res = await fetch(`${apiBase}/api/plan`, {
+      const promptLower = trimmedPrompt.toLowerCase();
+      const originDestination = extractOriginDestination(promptLower);
+      const fallbackOrigin = knownCities.find((city) => promptLower.includes(city)) ?? null;
+      const origin = originDestination.origin || fallbackOrigin;
+      const destination =
+        originDestination.destination ||
+        knownCities.find((city) => promptLower.includes(city) && city !== origin) ||
+        null;
+      const durationDays = extractDuration(promptLower);
+      const budget = extractBudget(promptLower);
+      const travelDate = extractTravelDate(promptLower);
+      const wantsRail = /rail|train/i.test(promptLower);
+      const avoidsFlights = /avoid\s*flights|no\s*flight/i.test(promptLower);
+      const wantsLocalFood = /local\s*food|street\s*food|veg|vegetarian/i.test(promptLower);
+
+      const missing: string[] = [];
+      if (!origin) missing.push("origin");
+      if (!destination) missing.push("destination");
+      if (!durationDays) missing.push("duration");
+      if (!budget) missing.push("budget");
+      if (!travelDate) missing.push("date");
+      if (!wantsRail && !avoidsFlights && !wantsLocalFood) missing.push("preferences");
+
+      const dateInfo = buildTripDates(travelDate, durationDays);
+      if (!origin || !destination || !budget || !dateInfo) {
+        setPromptError("Please include origin, destination, budget, and dates in the prompt.");
+        setPromptDebug({
+          extracted: {
+            origin,
+            destination,
+            durationDays,
+            budget,
+            travelDate,
+            preferences: {
+              rail: wantsRail,
+              avoidFlights: avoidsFlights,
+              localFood: wantsLocalFood,
+            },
+          },
+          missing,
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      const outboundCost = Math.round(budget * 0.25);
+      const returnCost = Math.round(budget * 0.33);
+      const tripDetails = {
+        from: origin,
+        to: destination,
+        startDate: dateInfo.startDate,
+        deadline: dateInfo.deadline,
+        budget,
+        userID: userId || 'demo-user',
+        travelSelection: {
+          outboundId: 'prompt_outbound',
+          returnId: 'prompt_return',
+          outboundCost,
+          returnCost,
+        },
+        budgetRemaining: Math.max(0, budget - outboundCost - returnCost),
+        avoidNightTravel: false,
+        sideLocations: [],
+      };
+
+      const res = await fetch(`${apiBase}/api/trips/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: trimmedPrompt }),
+        body: JSON.stringify(tripDetails),
       });
 
       if (!res.ok) throw new Error("Plan generation failed");
-      const data = await res.json();
-      const trips = Array.isArray(data?.trips) && data.trips.length > 0 ? data.trips : demoTrips;
-      setPromptDebug(data?.debug ?? null);
+      const trips = await res.json();
+
+      setPromptDebug({
+        extracted: {
+          origin,
+          destination,
+          durationDays,
+          budget,
+          travelDate,
+          preferences: {
+            rail: wantsRail,
+            avoidFlights: avoidsFlights,
+            localFood: wantsLocalFood,
+          },
+        },
+        missing,
+      });
 
       setDisplayTrips(trips);
-      setDemoMode(true);
+      setDemoMode(false);
       localStorage.setItem('lastGeneratedTrips', JSON.stringify(trips));
       setLastGeneratedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     } catch (err) {
@@ -515,7 +684,9 @@ export default function TripsPage() {
 
               <div className="glass-card rounded-xl p-4">
                 <div className="text-xs uppercase tracking-widest text-muted">Carbon calculator</div>
-                <div className="mt-3 text-sm text-site">Estimated total impact: 10.4 kg CO2e</div>
+                <div className="mt-3 text-sm text-site">
+                  Estimated total impact: {emissionTotalLabel || "10.4 kg CO2e"}
+                </div>
                 <div className="mt-3 space-y-2">
                   {isGenerating ? (
                     <>
@@ -524,15 +695,19 @@ export default function TripsPage() {
                       <div className="shimmer shimmer-line" />
                     </>
                   ) : (
-                    carbonBreakdown.map((item) => (
+                    emissionBreakdown.map((item) => (
                       <div key={item.label} className="flex items-center justify-between text-xs text-muted">
                         <span>{item.label}</span>
-                        <span className="text-site font-semibold">{item.value} · {item.share}</span>
+                        <span className="text-site font-semibold">
+                          {item.value}{item.share ? ` · ${item.share}` : ""}
+                        </span>
                       </div>
                     ))
                   )}
                 </div>
-                <div className="mt-3 text-xs text-muted">Synthetic data for demo.</div>
+                <div className="mt-3 text-xs text-muted">
+                  {emissionsSummary ? "Estimated emissions from synthetic model." : "Synthetic data for demo."}
+                </div>
               </div>
 
               <div className="glass-card rounded-xl p-4">
@@ -653,7 +828,9 @@ export default function TripsPage() {
                   </div>
                   <div className="bg-site/30 p-4 rounded-2xl text-center">
                     <p className="text-[10px] text-muted uppercase font-bold">CO2 Impact</p>
-                    <p className="text-lg font-black text-emerald-600">{9.6 + idx * 1.8} kg</p>
+                    <p className="text-lg font-black text-emerald-600">
+                      {trip.emissions?.totalKg !== undefined ? `${trip.emissions.totalKg.toFixed(1)} kg` : `${9.6 + idx * 1.8} kg`}
+                    </p>
                   </div>
                   <div className="bg-site/30 p-4 rounded-2xl text-center md:col-span-2">
                     <p className="text-[10px] text-muted uppercase font-bold">Dates</p>

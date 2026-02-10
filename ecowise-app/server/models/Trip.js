@@ -42,9 +42,18 @@ const TripSchema = new mongoose.Schema({
   plan: [mongoose.Schema.Types.Mixed],
   warnings: [String],
 
+  emissions: {
+    transportKg: Number,
+    stayKg: Number,
+    activitiesKg: Number,
+    totalKg: Number
+  },
+
   totalCost: Number,
   budgetRemaining: Number
 
 }, { timestamps: true });
+
+TripSchema.index({ userID: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Trip', TripSchema);

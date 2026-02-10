@@ -30,10 +30,12 @@ app.use(cookieParser());
 const tripRoutes = require('./routes/trips');
 const generateTripRoute = require('./api/trips/generate/trips');
 const authRoutes = require('./routes/auth');
+const modelsRoutes = require('./routes/models');
 
 app.use('/api/trips', tripRoutes);
 app.use('/api/trips/generate', generateTripRoute);
 app.use('/api/auth', authRoutes);
+app.use('/api/models', modelsRoutes);
 
 app.get('/', (req, res) => {
   res.send('TravelWise API is running...');
