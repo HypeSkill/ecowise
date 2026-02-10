@@ -227,24 +227,60 @@ export default function Hero() {
             <p className="mt-2 text-sm text-muted">
               This demo uses synthetic itineraries and carbon estimates to illustrate the full AI flow end-to-end.
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-xl bg-white/60 p-3">
-                <div className="text-xs text-muted">Routes</div>
-                <div className="font-semibold text-site">Map-ready</div>
-              </div>
-              <div className="rounded-xl bg-white/60 p-3">
-                <div className="text-xs text-muted">CO2</div>
-                <div className="font-semibold text-site">API stubs</div>
-              </div>
-              <div className="rounded-xl bg-white/60 p-3">
-                <div className="text-xs text-muted">NLP</div>
-                <div className="font-semibold text-site">Gemini-ready</div>
-              </div>
-              <div className="rounded-xl bg-white/60 p-3">
-                <div className="text-xs text-muted">Ranking</div>
-                <div className="font-semibold text-site">ML scoring</div>
-              </div>
-            </div>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm grid-dots p-4 rounded-xl bg-card">
+  <div className="
+    rounded-xl p-4 bg-card shadow-sm
+    transition-all duration-200
+    hover:-translate-y-1 hover:shadow-lg
+  ">
+    <div className="text-xs uppercase tracking-widest text-muted mb-1">
+      Routes
+    </div>
+    <div className="font-semibold text-site">
+      Map-ready
+    </div>
+  </div>
+
+  <div className="
+    rounded-xl p-4 bg-card shadow-sm
+    transition-all duration-200
+    hover:-translate-y-1 hover:shadow-lg
+  ">
+    <div className="text-xs uppercase tracking-widest text-muted mb-1">
+      CO2
+    </div>
+    <div className="font-semibold text-site">
+      API stubs
+    </div>
+  </div>
+
+  <div className="
+    rounded-xl p-4 bg-card shadow-sm
+    transition-all duration-200
+    hover:-translate-y-1 hover:shadow-lg
+  ">
+    <div className="text-xs uppercase tracking-widest text-muted mb-1">
+      NLP
+    </div>
+    <div className="font-semibold text-site">
+      Gemini-ready
+    </div>
+  </div>
+
+  <div className="
+    rounded-xl p-4 bg-card shadow-sm
+    transition-all duration-200
+    hover:-translate-y-1 hover:shadow-lg
+  ">
+    <div className="text-xs uppercase tracking-widest text-muted mb-1">
+      Ranking
+    </div>
+    <div className="font-semibold text-site">
+      ML scoring
+    </div>
+  </div>
+</div>
+
           </div>
         </div>
 

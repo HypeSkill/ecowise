@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @tailwind utilities;
 
+/* =========================
+   FONTS
+   ========================= */
+
 html {
   font-family: var(--font-instrument), 'Noto Sans', sans-serif;
 }
@@ -9,38 +13,52 @@ h1, h2, h3, h4, .kicker {
   font-family: var(--font-space), var(--font-instrument), 'Noto Sans', sans-serif;
 }
 
-/* Light theme variables (default) */
+/* =========================
+   THEME VARIABLES
+   ========================= */
+
+/* Light theme */
 :root {
   --bg: #F7FBFF;
   --card: #FFFFFF;
   --fg: #0F172A;
-  --muted: #6B7280;
-  --primary: #06B6D4;
-  --glass: rgba(255, 255, 255, 0.72);
+  --muted: #475569;
+
+  /* ECO PRIMARY (slightly darker for contrast) */
+  --primary: #059669;
+
+  --glass: rgba(255, 255, 255, 0.78);
   --glass-border: rgba(148, 163, 184, 0.35);
 }
 
-/* Dark theme — applied when `dark` class is present on <html> */
+/* Dark theme */
 html.dark {
   --bg: #0b1220;
-  --card: #0f1724;
+  --card: #121c2f; /* 🔧 FIX: lighter than bg */
+
   --fg: #E6EEF8;
-  --muted: #9CA3AF;
-  --primary: #06B6D4;
-  --glass: rgba(15, 23, 36, 0.7);
-  --glass-border: rgba(148, 163, 184, 0.2);
+  --muted: #CBD5E1;
+
+  --primary: #10B981;
+
+  --glass: rgba(18, 28, 47, 0.72);
+  --glass-border: rgba(148, 163, 184, 0.25);
 }
 
-/* Respect system preference if user hasn't chosen a theme */
+/* System dark fallback */
 @media (prefers-color-scheme: dark) {
   :root:not(.theme-set) {
     --bg: #0b1220;
-    --card: #0f1724;
+    --card: #121c2f;
     --fg: #E6EEF8;
-    --muted: #9CA3AF;
-    --primary: #06B6D4;
+    --muted: #CBD5E1;
+    --primary: #10B981;
   }
 }
+
+/* =========================
+   BASE
+   ========================= */
 
 body {
   background-color: var(--bg);
@@ -48,25 +66,40 @@ body {
   transition: background-color 180ms linear, color 180ms linear;
 }
 
-/* Utility token helpers (so tailwind classes can reference colors via styles) */
+/* =========================
+   UTILITY HELPERS
+   ========================= */
+
 .bg-site { background-color: var(--bg); }
-.text-site { color: var(--fg); }
 .bg-card { background-color: var(--card); }
+
+.text-site { color: var(--fg); }
 .text-muted { color: var(--muted); }
-.btn-primary { background-color: var(--primary); }
+
+.text-primary { color: var(--primary); }
+.border-primary { border-color: var(--primary); }
+
+/* =========================
+   PAGE BACKGROUND
+   ========================= */
+
 .page-shell {
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(6, 182, 212, 0.18), transparent 60%),
-    radial-gradient(900px 500px at 90% 0%, rgba(16, 185, 129, 0.18), transparent 55%),
-    linear-gradient(180deg, rgba(15, 23, 42, 0.03), transparent 30%);
+    radial-gradient(1200px 600px at 10% -10%, rgba(16,185,129,0.22), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(6,182,212,0.18), transparent 55%),
+    linear-gradient(180deg, rgba(15,23,42,0.03), transparent 30%);
 }
 
 html.dark .page-shell {
   background:
-    radial-gradient(1200px 600px at 10% -10%, rgba(6, 182, 212, 0.2), transparent 60%),
-    radial-gradient(900px 500px at 90% 0%, rgba(16, 185, 129, 0.15), transparent 55%),
-    linear-gradient(180deg, rgba(2, 6, 23, 0.6), transparent 45%);
+    radial-gradient(1200px 600px at 10% -10%, rgba(16,185,129,0.18), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(6,182,212,0.14), transparent 55%),
+    linear-gradient(180deg, rgba(2,6,23,0.6), transparent 45%);
 }
+
+/* =========================
+   CARDS (INTERACTIVE)
+   ========================= */
 
 .glass-card {
   background-color: var(--glass);
@@ -76,30 +109,99 @@ html.dark .page-shell {
 
 .stat-card {
   background-color: var(--card);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148,163,184,0.3);
 }
 
-.grid-dots {
-  background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.25) 1px, transparent 0);
-  background-size: 22px 22px;
+/* 🔥 KEEP HOVERS (RESTORED) */
+.bg-card,
+.stat-card,
+.glass-card {
+  transition: transform 220ms ease, box-shadow 220ms ease;
 }
+
+.bg-card:hover,
+.stat-card:hover,
+.glass-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+}
+
+/* =========================
+   BADGES & CHIPS
+   ========================= */
 
 .eco-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 600;
   color: #065F46;
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16,185,129,0.25);
 }
 
 html.dark .eco-badge {
   color: #A7F3D0;
-  background: rgba(16, 185, 129, 0.18);
+  background: rgba(16,185,129,0.2);
 }
+
+.chip {
+  display: inline-flex;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fg);
+  border: 1px solid rgba(148,163,184,0.35);
+  background: rgba(255,255,255,0.85);
+}
+
+html.dark .chip {
+  background: rgba(18,28,47,0.85);
+}
+
+/* =========================
+   BUTTONS (INTERACTIVE)
+   ========================= */
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 999px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(16,185,129,0.4);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(148,163,184,0.4);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+}
+
+html.dark .theme-toggle {
+  background: rgba(18,28,47,0.8);
+}
+
+/* =========================
+   TEXT
+   ========================= */
 
 .kicker {
   font-size: 0.7rem;
@@ -108,28 +210,19 @@ html.dark .eco-badge {
   font-weight: 600;
 }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--fg);
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.6);
+/* =========================
+   GRID & EFFECTS
+   ========================= */
+
+.grid-dots {
+  background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,0.25) 1px, transparent 0);
+  background-size: 22px 22px;
 }
 
-html.dark .chip {
-  border-color: rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 36, 0.7);
-}
-/* Accent helpers */
-.text-primary { color: var(--primary); }
-.border-primary { border-color: var(--primary); }
+/* =========================
+   ANIMATIONS (UNCHANGED)
+   ========================= */
 
-/* Entrance animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -158,31 +251,36 @@ html.dark .chip {
 .animate-delay-350 { animation-delay: 350ms; }
 
 .shimmer {
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.15), rgba(148, 163, 184, 0.35), rgba(148, 163, 184, 0.15));
+  background: linear-gradient(
+    90deg,
+    rgba(148,163,184,0.15),
+    rgba(148,163,184,0.35),
+    rgba(148,163,184,0.15)
+  );
   background-size: 200% 100%;
   animation: shimmer 1.3s ease-in-out infinite;
 }
 
-.shimmer-line {
-  height: 10px;
-  border-radius: 999px;
+/* =========================
+   FIX: SAVED TRIPS TEXT VISIBILITY
+   ========================= */
+
+/* Improve readability of secondary text inside cards */
+.bg-card p,
+.bg-card span,
+.bg-card li,
+.stat-card p,
+.stat-card span,
+.glass-card p,
+.glass-card span {
+  color: var(--fg) !important;
+  opacity: 0.9;
 }
 
-.shimmer-block {
-  height: 72px;
-  border-radius: 16px;
-}
-
-.shimmer-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.shimmer-button::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-  background-size: 200% 100%;
-  animation: shimmer 1.2s ease-in-out infinite;
+/* Make labels slightly softer but still readable */
+.bg-card .text-muted,
+.stat-card .text-muted,
+.glass-card .text-muted {
+  color: var(--muted) !important;
+  opacity: 0.95;
 }

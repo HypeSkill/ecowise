@@ -15,18 +15,78 @@ export default function Header({ userName, avatarUrl }: HeaderProps) {
     <header className="w-full flex items-center justify-between border-b px-6 md:px-10 py-3 border-primary/10">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Image src="/assets/logo.png" alt="Logo" width={28} height={28} className="rounded-md" />
+          <Image
+  src="/assets/logo-v2.png"
+  alt="Logo"
+  width={28}
+  height={28}
+  className="rounded-md"
+/>
+
         </div>
         <h2 className="text-lg font-bold text-site">EcoWise</h2>
       </div>
 
-      <nav className="hidden md:flex items-center gap-8">
-        <Link href="/" className="text-site text-sm font-medium">Home</Link>
-        <Link href="/trips" className="text-site text-sm font-medium">Trips</Link>
-        <Link href="/dashboard/trips" className="text-site text-sm font-medium">Planner</Link>
-        <Link href="/dashboard/saved-trips" className="text-site text-sm font-medium">Saved</Link>
-        <Link href="/login" className="text-site text-sm font-medium">Sign in</Link>
-      </nav>
+      <nav className="sticky top-4 z-50 w-full flex justify-center">
+  <div
+    className="
+      isolate
+      flex items-center gap-10
+      px-8 h-14
+      rounded-full
+      bg-white dark:bg-slate-900
+      border border-slate-300 dark:border-slate-700
+      shadow-md
+    "
+  >
+    {/* Navigation links */}
+    <Link
+      href="/"
+      className="text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-emerald-600 transition"
+    >
+      Home
+    </Link>
+
+    <Link
+      href="/trips"
+      className="text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-emerald-600 transition"
+    >
+      Trips
+    </Link>
+
+    <Link
+      href="/dashboard/trips"
+      className="text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-emerald-600 transition"
+    >
+      Planner
+    </Link>
+
+    <Link
+      href="/dashboard/saved-trips"
+      className="text-sm font-semibold text-slate-800 dark:text-slate-200 hover:text-emerald-600 transition"
+    >
+      Saved
+    </Link>
+
+    {/* Sign in */}
+    <Link
+      href="/login"
+      className="
+        ml-4
+        rounded-full
+        px-5 py-2
+        text-sm font-bold
+        bg-emerald-600 text-white
+        hover:bg-emerald-700
+        shadow-sm
+        transition
+      "
+    >
+      Sign in
+    </Link>
+  </div>
+</nav>
+
 
       <div className="flex items-center gap-4">
         <ThemeToggle />
