@@ -1,111 +1,53 @@
-Travelwise App
-Travelwise is a comprehensive travel planning application designed to help users discover destinations, plan and manage itineraries, and enjoy a seamless trip organization experience.
+# EcoWise - AI-Powered Eco-Smart Travel Planner
 
-Table of Contents
-Features
+EcoWise helps travelers plan sustainable trips with AI-assisted recommendations, carbon impact insights, and eco-friendly alternatives. The demo showcases an NLP prompt flow, model reasoning panels, and synthetic itinerary generation for a hackathon-ready experience.
 
-Demo
+## Features
+- NLP trip brief: enter a prompt and generate ranked eco-friendly itineraries.
+- Carbon impact insights: per-trip CO2 estimates and reduction cues.
+- Sustainable options: rail-first routes, verified green stays, local-first activities.
+- Demo-ready backend: mock API routes for auth and trip generation.
+- Light/Dark themes with consistent styling.
 
-Installation
+## Demo Credentials
+- User: `demo`
+- Password: `1234`
+- Or use "Skip login (demo)" on the login page.
 
-Usage
+## Quick Start (Frontend + Mock API)
+From the `ecowise-app/client` folder:
 
-Technologies Used
-
-Contributing
-
-License
-
-Contact
-
-Features
-Search and explore travel destinations worldwide.
-
-Create, edit, and manage personalized itineraries.
-
-User authentication and profile management.
-
-Filter destinations by categories, regions, or interests.
-
-Responsive design for mobile and desktop platforms.
-
-Integration with external APIs (weather, maps, etc.).
-
-Save trips and plan efficiently.
-
-Demo
-(Add a link or screenshot here if available)
-
-Installation
-Prerequisites
-Node.js (Recommended version: >=14.x)
-
-npm or yarn package managers
-
-Steps
-bash
-# Clone the repository
-git clone https://github.com/Suryansh-Varma/travelwise-app.git
-
-# Navigate into the project directory
-cd travelwise-app
-
-# Install dependencies
+```bash
 npm install
-# OR
-yarn install
+npm run dev
+```
 
-# Start the application
-npm start
-# OR
-yarn start
-Open your browser and visit http://localhost:3000 to run the app locally.
+Open http://localhost:3000
 
-If environment variables (e.g., API keys) are needed, set them up in a .env file.
+The mock backend is built into Next.js route handlers:
+- `/api/auth/me` returns a demo user.
+- `/api/plan` accepts the prompt and returns synthetic plans.
+- `/api/trips` provides demo saved trips.
 
-Usage
-Browse destinations using the search or filters.
+## Optional: Real Backend
+If you want to use the Node/Express backend, run it separately and set:
 
-Select places you'd like to visit and add them to your itinerary.
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-Review, edit, and organize your trip plans.
+## Tech Stack
+- Next.js (React)
+- Node.js / Express (optional backend)
+- MongoDB (optional backend)
+- NLP + recommendation logic (demo stubs)
+- Carbon estimation stubs
 
-Log in to save and access your personalized travel itineraries anytime.
+## Screens
+- `/` Home
+- `/trips` Demo library
+- `/dashboard/trips` Planner + NLP prompt
+- `/dashboard/saved-trips` Saved trips
 
-Technologies Used
-React.js for Frontend UI
-
-Node.js and Express (if backend used)
-
-MongoDB or SQL database (if applicable)
-
-External APIs (e.g., Google Maps, weather services)
-
-CSS/SCSS or a UI framework (Bootstrap, Material-UI, TailwindCSS)
-
-(Adjust as per actual technologies used in the project)
-
-Contributing
-Contributions are welcome! Please follow the steps below:
-
-Fork the repository.
-
-Create a new branch: git checkout -b feature/YourFeatureName
-
-Commit your changes: git commit -m 'Add some feature'
-
-Push to your branch: git push origin feature/YourFeatureName
-
-Open a Pull Request to the main repository.
-
-Please ensure your code follows the project's coding standards and that you update tests when appropriate.
-
-License
-This project is licensed under the Apache License — see the LICENSE file for details.
-
-Contact
-Project Link: https://github.com/Suryansh-Varma/travelwise-app
-
-For questions, feature requests, or bugs, open an issue on GitHub or contact the maintainer directly.
-
-If you want, I can also help you generate badges (e.g., build status, license), write detailed setup instructions, or add documentation for specific features/classes. Just let me know!
+## Notes for Judges
+The demo uses synthetic data to show the end-to-end AI flow. The prompt debugger highlights missing fields, and the UI shows reasoning, scoring, and impact metrics.
